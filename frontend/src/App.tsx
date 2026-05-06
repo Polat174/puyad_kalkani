@@ -70,6 +70,12 @@ function App() {
       es.close()
     })
 
+    // Bağlantının kurulmasını bekle (race condition önleme)
+    await new Promise<void>(resolve => {
+      es.onopen = () => resolve()
+      setTimeout(resolve, 1000) // Fallback timeout
+    })
+
     try {
       const res = await fetch(`${API}/api/scan`)
       const data: ScanReport = await res.json()
