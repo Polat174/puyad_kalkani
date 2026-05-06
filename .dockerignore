@@ -1,0 +1,25 @@
+# Git & IDE
+.git
+.gitignore
+.vscode
+.idea
+*.md
+
+# Go
+bin/
+*.exe
+
+# Frontend
+frontend/node_modules/
+frontend/.eslintcache
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

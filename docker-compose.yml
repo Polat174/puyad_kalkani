@@ -1,0 +1,58 @@
+
+services:
+  kalkani:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: puyad-kalkani
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+    volumes:
+      # Host sistemini taramak VE düzeltmek için (read-write)
+      - /etc/ssh/sshd_config:/etc/ssh/sshd_config
+      - /etc/sysctl.conf:/etc/sysctl.conf
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/shadow:/etc/shadow:ro
+      # /proc/sys host'tan okunur — /host/proc/sys olarak bağlanır
+      - /proc/sys:/host/proc/sys:ro
+      # Yedekleme dizini
+      - kalkani-backups:/var/lib/kalkani/backups
+    # Kernel parametrelerini okumak/düzeltmek için gerekli
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    restart: unless-stopped
+    networks:
+      - kalkani-net
+
+  # ── İsteğe bağlı: Host sistemi tarama modu ──
+  kalkani-host:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: puyad-kalkani-host
+    ports:
+      - "8081:8080"
+    network_mode: host
+    pid: host
+    privileged: true
+    volumes:
+      - /:/host:ro
+      - /etc/ssh/sshd_config:/etc/ssh/sshd_config
+      - /etc/sysctl.conf:/etc/sysctl.conf
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/shadow:/etc/shadow:ro
+      - /proc:/host/proc:ro
+    restart: unless-stopped
+    profiles:
+      - host-scan
+
+volumes:
+  kalkani-backups:
+
+networks:
+  kalkani-net:
+    driver: bridge
